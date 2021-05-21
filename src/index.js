@@ -1,17 +1,32 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import SeasonDisplay from "./SeasonDisplay";
+import "semantic-ui-css/semantic.min.css";
+import Spinner from "./Spinner";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const App = () => {
+    const [ lattitude, setLatitude ] = useState(null);
+    const [ errorMessage, setErrorMessage ] = useState('');
+    window.navigator.geolocation.getCurrentPosition(
+        (position) => setLatitude(position.coords.latitude),
+        (err) => setErrorMessage(err.message)
+    );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    const renderContent = () => {
+        if(errorMessage!=='' && lattitude === null){
+            return <div>Error: {errorMessage}</div>;
+        }
+        if(lattitude !== null && errorMessage===''){
+            return <SeasonDisplay lat={lattitude} />;
+        }
+        return <Spinner message={'Please accept location request'}/>;
+    }
+
+    return (
+        <div className="border red">
+            {renderContent()}
+        </div>
+    );
+}
+
+ReactDOM.render(<App />, document.querySelector("#root"));
